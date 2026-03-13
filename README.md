@@ -8,7 +8,7 @@
 
 ### 1. AI 감정 분석 및 캘린더 시각화
 * **정교한 감정 분류**: 사용자가 작성한 일기를 분석하여 8가지 감정(기쁨, 놀라움, 두려움, 분노, 불쾌함, 설렘, 슬픔, 평범함)으로 분류합니다.
-* **감정 캘린더**: 날짜별로 분석된 감정을 이모지로 표시하여 한눈에 한 달의 기분 변화를 확인할 수 있습니다.
+* **감정 캘린더**: 날짜별로 분석된 감정을 이모지와 색으로 표시하여 한눈에 한 달의 기분 변화를 확인할 수 있습니다.
 
 ### 2. 나의 감정 주치의 (Proactive AI Doctor)
 * **부정 감정 감지**: 분노, 슬픔 등 부정적인 감정이 3일 이상 지속될 경우 시스템이 이를 자동으로 감지합니다.
@@ -26,4 +26,4 @@
 * **Deep Learning**: PyTorch, HuggingFace Transformers (AutoModelForSequenceClassification)
 * **LLM Framework**: LangChain (RAG Implementation)
 * **Database**: Local File System (txt based) & FAISS (Vector Store)
-* **Language**: Python 3.9+
+* **Language**: Python 3.12+
