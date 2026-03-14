@@ -10,6 +10,12 @@
 * **정교한 감정 분류**: 사용자가 작성한 일기를 분석하여 8가지 감정(기쁨, 놀라움, 두려움, 분노, 불쾌함, 설렘, 슬픔, 평범함)으로 분류합니다.
 * **감정 캘린더**: 날짜별로 분석된 감정을 이모지와 색으로 표시하여 한눈에 한 달의 기분 변화를 확인할 수 있습니다.
 
+    - **Core Model**: LimYeri/HowRU-KoELECTRA-Emotion-Classifier(Fine-tuned on Korean Emotion Dataset)
+    - **Implementation**: Hugging Face의 transformers 라이브러리를 통해 토크나이저와 모델을 동적으로 로드합니다.
+    - **Analysis Strategy**:
+        - Sentence-level Scoring: 일기 전체를 문장 단위로 분리하여 개별 감정을 분석합니다.
+        - Weighted Decision: 단순히 빈도수가 높은 감정을 선택하는 것이 아니라, 각 문장의 감정 확률값과 출현 빈도 그리고 마지막 문장의 흐름을 종합적으로 고려하여 최종 감정을 도출합니다.
+
 ### 2. 나의 감정 주치의 (Proactive AI Doctor)
 * **부정 감정 감지**: 분노, 슬픔 등 부정적인 감정이 3일 이상 지속될 경우 시스템이 이를 자동으로 감지합니다.
 * **최근 일기 기반 대화**: LangChain을 활용하여, 과거 사용자의 일기 중 부정적인 감정의 내용을 바탕으로 공감하는 이야기로 대화를 시작한다.
