@@ -6,8 +6,7 @@ from model_utils import analyze_diary, emotion_icon
 
 def render_calendar():
     st.title("📅 감정 일기장")
-    
-    # Month navigation
+
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
         if st.button("◀ 이전 달"):
@@ -30,13 +29,12 @@ def render_calendar():
 
     st.write("---")
     
-    # Days of week header
     days = ["월", "화", "수", "목", "금", "토", "일"]
     cols = st.columns(7)
     for i, day in enumerate(days):
         cols[i].markdown(f"<div style='text-align: center; font-weight: bold;'>{day}</div>", unsafe_allow_html=True)
 
-    # Calendar grid
+
     year = st.session_state.current_month.year
     month = st.session_state.current_month.month
     cal = calendar.monthcalendar(year, month)
@@ -51,7 +49,7 @@ def render_calendar():
             date_obj = datetime.date(year, month, day)
             date_str = date_obj.strftime("%Y-%m-%d")
             
-            # Check if dairy exists to show icon
+
             _, emotion = load_diary(st.session_state.username, date_str)
             icon = emotion_icon.get(emotion, "")
             

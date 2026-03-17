@@ -36,7 +36,6 @@ def save_diary(username, date_str, text, emotion):
         try:
             with open(json_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                # To ensure it's a dict (in case it got corrupted or changed structure)
                 if not isinstance(data, dict):
                     data = {}
         except Exception:
@@ -48,7 +47,6 @@ def save_diary(username, date_str, text, emotion):
         "diary": text
     }
     
-    # Sort the dictionary by date to keep it neat
     sorted_data = dict(sorted(data.items()))
 
     with open(json_path, "w", encoding="utf-8") as f:
