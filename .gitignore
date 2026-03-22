@@ -1,3 +1,7 @@
 .venv/
 .env
 .DS_store
+.streamlit/
+model/
+data/김부장/chroma_db/
+__pycache__/
