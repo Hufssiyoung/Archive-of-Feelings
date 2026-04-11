@@ -4,6 +4,8 @@
 .streamlit/
 model/
 data/김부장/chroma_db/
+data/홍새내기/
 __pycache__/
 pr.ipynb
 PLAN.md
+memory_explorer.md

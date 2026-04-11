@@ -36,5 +36,5 @@
 * **Frontend**: Streamlit(Demo version)
 * **Deep Learning**: PyTorch, HuggingFace Transformers (AutoModelForSequenceClassification)
 * **LLM Framework**: LangChain (RAG Implementation)
-* **Database**: Local File System (txt based, 사용자 작성 일기) & FAISS (Vector Store)
+* **Database**: Local File System (txt based, 사용자 작성 일기) & Chroma (Vector Store)
 * **Language**: Python 3.12+
