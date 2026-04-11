@@ -20,11 +20,9 @@
 * **부정 감정 감지**: 분노, 슬픔 등 부정적인 감정이 3일 이상 지속될 경우 시스템이 이를 자동으로 감지합니다.
 * **최근 일기 기반 대화**: LangChain을 활용하여, 과거 사용자의 일기 중 부정적인 감정의 내용을 바탕으로 공감하는 이야기로 대화를 시작한다.
 * **선제적 공감 대화**: 사용자가 일기를 쓰러 들어왔을 때, AI가 먼저 따뜻한 위로의 말을 건네며 대화를 시도합니다.
-* **감정의 환기 유도**: 사용자에게 위로의 말을 건네는 것과 함께, 만약 사용자가 이전의 긍정적인 감정을 느꼈던 내용이 있다면 해당 내용을 참고하여 사용자에게 그 때의 기억을 떠올리며 감정이 환기될 수 있도록 한다.
     - Trigger - Retrieval - Generation' 파이프라인
         1. 부정 감정 감지
-        2. 긍정 기억 인출
-        3. 선제적 공감 대화 생성(Prompt Engineering)
+        2. 선제적 공감 대화 생성(Prompt Engineering)
 
 ### 3. 기억 탐험가 (RAG-based Memory Explorer)
 * **과거 기록 기반 상담**: LangChain을 활용하여 사용자가 과거에 쓴 일기 내용을 기반으로 답변합니다.
@@ -38,5 +36,5 @@
 * **Frontend**: Streamlit(Demo version)
 * **Deep Learning**: PyTorch, HuggingFace Transformers (AutoModelForSequenceClassification)
 * **LLM Framework**: LangChain (RAG Implementation)
-* **Database**: Local File System (txt based, 사용자 작성 일기) & FAISS (Vector Store)
+* **Database**: Local File System (txt based, 사용자 작성 일기) & Chroma (Vector Store)
 * **Language**: Python 3.12+
