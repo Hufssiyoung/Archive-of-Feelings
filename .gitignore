@@ -6,6 +6,12 @@ model/
 data/김부장/chroma_db/
 data/홍새내기/
 __pycache__/
+tts_cache/
 pr.ipynb
 PLAN.md
 memory_explorer.md
+presentation/Archive_of_Feelings_발표자료.docx
+new_func1.md
+ipynb/
+data/홍길동/chroma_db/
+data/*/chroma_db
