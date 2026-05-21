@@ -1,6 +1,6 @@
 import streamlit as st
 import datetime
-from ui import render_calendar, render_diary_entry, render_doctor_view, render_memory_explorer
+from ui import render_calendar, render_diary_entry, render_doctor_view, render_memory_explorer, render_diagnosis_view
 from model_utils import load_model
 from tts_utils import clear_user_cache
 
@@ -10,6 +10,9 @@ def render_login():
     if page == "memory":
         st.title("🔍 기억 탐험가")
         st.info("사용자 이름을 입력하면 기억 탐험가를 시작할 수 있습니다.")
+    elif page == "diagnosis":
+        st.title("📋 나의 진단서")
+        st.info("사용자 이름을 입력하면 나의 진단서를 확인할 수 있습니다.")
     else:
         st.title("📖 감정 일기장")
         st.info("사용자 이름을 입력하면 감정 일기장을 사용할 수 있습니다.")
@@ -64,6 +67,10 @@ def main():
             st.session_state.current_page = "diary"
             st.session_state.show_doctor = False
             st.rerun()
+        if st.button("📋 나의 진단서", use_container_width=True,
+                     type="primary" if st.session_state.current_page == "diagnosis" else "secondary"):
+            st.session_state.current_page = "diagnosis"
+            st.rerun()
         if st.button("🔍 기억 탐험가", use_container_width=True,
                      type="primary" if st.session_state.current_page == "memory" else "secondary"):
             st.session_state.current_page = "memory"
@@ -88,6 +95,8 @@ def main():
     # 페이지 라우팅
     if st.session_state.current_page == "memory":
         render_memory_explorer()
+    elif st.session_state.current_page == "diagnosis":
+        render_diagnosis_view()
     elif st.session_state.show_doctor:
         render_doctor_view()
     elif st.session_state.selected_date is None:

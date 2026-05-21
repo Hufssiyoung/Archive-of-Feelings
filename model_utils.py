@@ -30,6 +30,9 @@ def analyze_diary(diary_text, tokenizer, model):
     
     if not sentences:
         return '분석불가', None
+    
+    if len(sentences) <= 2:
+        return '좀 더 상세한 내용을 입력해주세요🙏', None
 
     emotion_stats = {
         k: {'total_prob': 0.0, 'count': 0, 'last_step': -1}
