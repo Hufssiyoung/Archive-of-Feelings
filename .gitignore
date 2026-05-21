@@ -10,8 +10,9 @@ tts_cache/
 pr.ipynb
 PLAN.md
 memory_explorer.md
-presentation/Archive_of_Feelings_발표자료.docx
+presentation/*
 new_func1.md
 ipynb/
-data/홍길동/chroma_db/
+prompts/*
+data/*
 data/*/chroma_db

@@ -25,6 +25,18 @@ def load_diary(username, date_str):
                 pass
     return diary_text, emotion
 
+def count_diary_entries(username):
+    path = get_diary_path(username)
+    json_file = os.path.join(path, "diary.json")
+    if not os.path.exists(json_file):
+        return 0
+    try:
+        with open(json_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return len(data) if isinstance(data, dict) else 0
+    except (json.JSONDecodeError, Exception):
+        return 0
+
 def save_diary(username, date_str, text, emotion):
     path = get_diary_path(username)
     if not os.path.exists(path):

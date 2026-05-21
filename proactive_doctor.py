@@ -3,6 +3,7 @@ import json
 import yaml
 import numpy as np
 from collections import Counter
+from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 from sklearn.metrics.pairwise import cosine_similarity
@@ -14,6 +15,8 @@ load_dotenv()
 
 NEGATIVE_EMOTIONS = ["분노", "슬픔", "두려움", "불쾌함"]
 PROMPT_PATH = "prompts/proactive_doctor.yaml"
+MIN_DIARY_ENTRIES = 7
+MIN_WINDOW_ENTRIES = 3
 
 
 class EmotionalTriggerAnalyzer:
@@ -22,12 +25,18 @@ class EmotionalTriggerAnalyzer:
         api_key = os.getenv("OPENAI_API_KEY")
         self.embeddings_model = OpenAIEmbeddings(openai_api_key=api_key, model=model_name)
 
-    def load_diary_window(self, file_path, days=7):
-        """최근 n일간의 일기 데이터를 로드하고 최신순으로 반환합니다."""
+    def load_diary_window(self, file_path, reference_date: str, days=7):
+        """reference_date 기준 days일 이내 & 최대 days개 엔트리를 최신순으로 반환합니다."""
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        recent_dates = sorted(data.keys(), reverse=True)[:days]
+        base = datetime.strptime(reference_date, "%Y-%m-%d").date()
+        cutoff = base - timedelta(days=days)
+        recent_dates = sorted(
+            (d for d in data.keys() if cutoff < datetime.strptime(d, "%Y-%m-%d").date() <= base),
+            reverse=True,
+        )[:days]
+
         window_docs = []
         for date in recent_dates:
             entry = data[date]
@@ -109,9 +118,12 @@ def _build_doctor_chain():
     return final_prompt | llm | StrOutputParser()
 
 
-def analyze_trigger(username: str, threshold: float = 0.6) -> dict:
+def analyze_trigger(username: str, reference_date: str, threshold: float = 0.6) -> dict:
     """
     Stage 1~2: 트리거 분석 및 컨텍스트 추출만 수행합니다 (Generation 제외).
+
+    Args:
+        reference_date: 분석 기준 날짜 (YYYY-MM-DD), 사용자가 일기를 작성한 날짜
 
     Returns:
         {
@@ -124,11 +136,19 @@ def analyze_trigger(username: str, threshold: float = 0.6) -> dict:
     if not os.path.exists(diary_path):
         return {"triggered": False, "score": 0.0, "context": None}
 
+    with open(diary_path, "r", encoding="utf-8") as f:
+        all_entries = json.load(f)
+    if len(all_entries) < MIN_DIARY_ENTRIES:
+        return {"triggered": False, "score": 0.0, "context": None, "insufficient": True}
+
     analyzer = EmotionalTriggerAnalyzer()
-    window_docs = analyzer.load_diary_window(diary_path, days=7)
+    window_docs = analyzer.load_diary_window(diary_path, reference_date=reference_date, days=7)
 
     if not window_docs:
         return {"triggered": False, "score": 0.0, "context": None}
+
+    if len(window_docs) < MIN_WINDOW_ENTRIES:
+        return {"triggered": False, "score": 0.0, "context": None, "insufficient_window": True}
 
     score, centroid, vectors = analyzer.analyze_necessity(window_docs)
 

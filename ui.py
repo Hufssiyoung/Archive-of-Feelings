@@ -1,11 +1,12 @@
 import streamlit as st
 import datetime
 import calendar
-from storage import load_diary, save_diary
+from storage import load_diary, save_diary, count_diary_entries
 from model_utils import analyze_diary, emotion_icon
 from proactive_doctor import analyze_trigger, stream_generation
 from memory_explorer import MemoryExplorer, add_diary_to_vectorstore
 from tts_utils import generate_tts
+from diagnosis_storage import save_diagnosis, load_diagnoses
 
 def render_calendar():
     st.title("📅 감정 일기장")
@@ -120,9 +121,13 @@ def render_diary_entry(tokenizer, model):
 
     if st.session_state.get("saved_date") == date_str:
         st.markdown("---")
-        if st.button("🩺 감정 주치의 진단 보기"):
-            st.session_state.show_doctor = True
-            st.rerun()
+        diary_count = count_diary_entries(st.session_state.username)
+        if diary_count >= 7:
+            if st.button("🩺 감정 주치의 진단 보기"):
+                st.session_state.show_doctor = True
+                st.rerun()
+        else:
+            st.info(f"감정 주치의는 일기 7개 이상부터 이용할 수 있어요. (현재 {diary_count}개)")
 
 
 def render_memory_explorer():
@@ -257,13 +262,21 @@ def render_doctor_view():
         return
 
     # Stage 1~2: 트리거 분석
+    date_str = st.session_state.get("saved_date") or st.session_state.get("selected_date", "")
     not_triggered = False
     with st.status("최근 7일 일기를 분석하고 있습니다...", expanded=True) as status:
         st.write("감정 패턴과 위기 신호를 파악 중입니다...")
-        result = analyze_trigger(st.session_state.username)
+        result = analyze_trigger(st.session_state.username, reference_date=date_str)
         st.session_state.doctor_score = result["score"]
 
-        if not result["triggered"]:
+        if result.get("insufficient_window"):
+            status.update(label="분석 불가", state="error")
+            st.session_state.doctor_analyzed = True
+            st.session_state.doctor_triggered = False
+            st.session_state.doctor_message = "이번 주 일기가 부족해요. 감정 주치의가 제대로 도움을 드리려면 최근 7일 안에 일기가 3개 이상 필요해요. 조금 더 열심히 일기를 작성해 주세요! 🌱"
+            st.warning("최근 7일 내 일기가 3개 미만입니다. 일기를 더 작성해 주세요.")
+            not_triggered = True
+        elif not result["triggered"]:
             status.update(label="분석 완료", state="complete")
             st.session_state.doctor_analyzed = True
             st.session_state.doctor_triggered = False
@@ -291,4 +304,54 @@ def render_doctor_view():
     st.session_state.doctor_message = message
     st.session_state.doctor_tts_path = None  # 새 메시지이므로 TTS 캐시 초기화
 
+    # 진단 결과 DB 저장
+    date_str = st.session_state.get("saved_date") or st.session_state.get("selected_date", "")
+    if date_str:
+        empathy, diagnosis = _parse_doctor_message(message)
+        save_diagnosis(st.session_state.username, date_str, empathy, diagnosis)
+
     _render_tts_player(message, st.session_state.username)
+
+
+def _parse_doctor_message(message: str) -> tuple[str, str]:
+    """감정 주치의 메시지를 공감 / 조언 두 파트로 분리합니다."""
+    if "**조언**" in message:
+        parts = message.split("**조언**", 1)
+        empathy = parts[0].replace("**공감**", "").strip()
+        diagnosis = "**조언**" + parts[1]
+    else:
+        empathy = message.replace("**공감**", "").strip()
+        diagnosis = ""
+    return empathy, diagnosis
+
+
+def render_diagnosis_view():
+    st.title("📋 나의 진단서")
+    st.caption("감정 주치의가 남긴 진단 기록을 확인해보세요.")
+
+    username = st.session_state.get("username", "")
+    diagnoses = load_diagnoses(username)
+
+    if not diagnoses:
+        st.info("아직 저장된 진단서가 없습니다.\n\n일기를 작성하고 감정 주치의 진단을 받아보세요! 🩺")
+        return
+
+    st.markdown(f"총 **{len(diagnoses)}개**의 진단서가 있습니다.")
+    st.write("---")
+
+    for entry in diagnoses:
+        date_str = entry.get("date", "")
+        empathy = entry.get("empathy", "")
+        diagnosis = entry.get("diagnosis", "")
+
+        with st.container(border=True):
+            st.markdown(f"### 📅 {date_str}")
+
+            with st.expander("💬 공감 메시지", expanded=False):
+                st.markdown(empathy if empathy else "_공감 내용이 없습니다._")
+
+            if diagnosis:
+                with st.expander("🩺 처방 (조언)", expanded=True):
+                    st.markdown(diagnosis)
+
+        st.write("")

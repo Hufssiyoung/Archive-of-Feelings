@@ -24,7 +24,7 @@
     1. **Trigger Analysis**: 7일치 일기 임베딩 → necessity_score 산출 → 개입 여부 결정
     2. **Context Extraction**: 감정 벡터 centroid와 가장 가까운 일기를 핵심 맥락으로 추출
     3. **Streaming Generation**: LangChain Few-Shot 프롬프트 + `gpt-4o-mini` 스트리밍으로 공감 메시지 생성
-* **TTS 음성 출력**: 생성된 공감 메시지를 gTTS로 한국어 음성 변환하여 재생합니다. MD5 해시 기반으로 사용자별 캐싱하며, 로그아웃 시 캐시를 자동 삭제합니다.
+* **TTS 음성 출력**: 생성된 공감 메시지를 gTTS로 한국어 음성 변환하여 재생합니다. 사용자별 캐싱하며, 로그아웃 시 캐시를 자동 삭제합니다.
 
 ### 3. 기억 탐험가 (RAG-based Memory Explorer)
 * **구조화된 의도 분석**: 사용자 쿼리를 LangChain Structured Output(`SearchIntent` Pydantic 모델)으로 파싱하여 검색 키워드, 날짜/기간, 감정, 시간 이동 여부, 유효성 등을 추출합니다.
